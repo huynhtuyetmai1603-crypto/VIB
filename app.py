@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 # ==========================================
 # 1. CẤU HÌNH TRANG STREAMLIT
@@ -13,10 +14,9 @@ st.set_page_config(
 # ==========================================
 # 2. TÙY CHỈNH GIAO DIỆN CHUẨN THƯƠNG HIỆU VIB (CSS)
 # ==========================================
-# Màu chủ đạo: Xanh Navy (#002D62) & Cam (#F37021)
 st.markdown("""
     <style>
-    /* Nền và phong cách Sidebar */
+    /* Nền Sidebar VIB */
     [data-testid="stSidebar"] {
         background-color: #002D62 !important;
     }
@@ -25,7 +25,6 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* Đường kẻ phân cách Sidebar */
     [data-testid="stSidebar"] hr {
         border-color: rgba(255, 255, 255, 0.15);
     }
@@ -55,7 +54,7 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* Tùy chỉnh thẻ thông số Bảng tính (Metric Cards) */
+    /* Thẻ thông số Bảng tính */
     .calc-card {
         background-color: #FFFFFF;
         border-radius: 10px;
@@ -78,7 +77,7 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* Đổi màu nhấn cho Slider & Radio Button sang màu Cam VIB */
+    /* Nút bấm Cam VIB */
     div.stButton > button {
         background-color: #F37021 !important;
         color: white !important;
@@ -93,19 +92,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. THANH DIỀU HƯỚNG BÊN TRÁI (SIDEBAR)
+# 3. THANH DIỀU HƯỚNG SIDEBAR (NƠI HIỂN THỊ LOGO)
 # ==========================================
 with st.sidebar:
-    # Logo VIB
-    st.image("https://www.vib.com.vn/wps/wcm/connect/vib-assets/logo.png", use_container_width=True)
     
+    # ----------------------------------------------------
+    # ĐOẠN CODE THÊM LOGO
+    # ----------------------------------------------------
+    LOCAL_LOGO_PATH = "vib_logo.png" # File logo tải về lưu cùng thư mục
+    ONLINE_LOGO_URL = "https://www.vib.com.vn/wps/wcm/connect/vib-assets/logo.png" # Link logo dự phòng online
+
+    # Kiểm tra nếu có file logo trong thư mục thì load, không thì lấy từ link online
+    if os.path.exists(LOCAL_LOGO_PATH):
+        st.image(LOCAL_LOGO_PATH, use_container_width=True)
+    else:
+        st.image(ONLINE_LOGO_URL, use_container_width=True)
+    # ----------------------------------------------------
+
     st.markdown("<h3 style='text-align: center; font-size: 18px; margin-top: 10px;'>QUẢN LÝ KHÁCH HÀNG</h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; font-size: 12px; color: #A0B2C6;'>KHỐI NGÂN HÀNG BÁN LẺ</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     st.markdown("**ĐIỀU HƯỚNG BẢNG ĐIỀU KHIỂN**")
     
-    # Chọn Menu chức năng
     selected_page = st.radio(
         label="Điều hướng",
         options=[
@@ -146,7 +155,6 @@ if selected_page == "📝 Đăng ký nhu cầu vay":
     st.markdown("### 📋 Thông tin hồ sơ vay")
     st.caption("Điền thông tin chính xác để chuyên viên thẩm định liên hệ nhanh nhất")
 
-    # Form nhập thông tin
     with st.form("loan_registration_form"):
         col1, col2 = st.columns(2)
 
@@ -166,7 +174,6 @@ if selected_page == "📝 Đăng ký nhu cầu vay":
                 ]
             )
             
-            # Thay đổi giá trị mặc định so với hình cũ
             so_tien_vay = st.number_input(
                 "💰 Số tiền đề xuất vay (VNĐ) (*)", 
                 value=350000000, 
@@ -177,7 +184,7 @@ if selected_page == "📝 Đăng ký nhu cầu vay":
             thoi_han_vay = st.selectbox(
                 "⏱️ Thời hạn vay mong muốn",
                 ["12 tháng", "24 tháng", "36 tháng", "48 tháng", "60 tháng", "84 tháng"],
-                index=2 # Mặc định chọn 36 tháng
+                index=2
             )
 
         submit_btn = st.form_submit_button("🚀 Gửi thông tin đăng ký")
@@ -198,29 +205,24 @@ elif selected_page == "🧮 Bảng tính trả góp":
 
     st.markdown("---")
 
-    # Các ô nhập liệu tính toán (Thay đổi số liệu khác hoàn toàn so với hình cũ)
     col_input1, col_input2, col_input3 = st.columns(3)
 
     with col_input1:
-        # Thay đổi số tiền vay: 500,000,000 VNĐ (Hình cũ: 200,000,000 VNĐ)
         so_tien = st.number_input("Số tiền vay (VNĐ)", value=500000000, step=10000000, format="%d")
 
     with col_input2:
-        # Thay đổi lãi suất: 7.9% / năm (Hình cũ: 8.5% / năm)
         lai_suat = st.number_input("Lãi suất (%/năm)", value=7.9, step=0.1, format="%.2f")
 
     with col_input3:
-        # Thay đổi thời gian vay: 48 tháng (Hình cũ: 36 tháng)
         thoi_gian = st.slider("Thời gian vay (Tháng)", min_value=6, max_value=120, value=48, step=6)
 
-    # Thuật toán tính toán Trả góp theo dư nợ giảm dần
+    # Tính toán
     goc_co_dinh_thang = so_tien / thoi_gian
     lai_thang_dau = so_tien * (lai_suat / 100) / 12
     tong_tra_thang_dau = goc_co_dinh_thang + lai_thang_dau
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Hiển thị kết quả tính toán trong 3 khung thẻ
     c1, c2, c3 = st.columns(3)
 
     with c1:
